@@ -1,12 +1,19 @@
 # Import the dependencies.
 
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy import create_engine, func
+from sqlalchemy.orm import Session
+
+import datetime as dt
+
 from flask import Flask, jsonify
 
 #################################################
 # Database Setup
 #################################################
 
-engine = create_engine("sqlite:///hawaii.sqlite")
+engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 
 # reflect an existing database into a new model
 
@@ -23,38 +30,65 @@ Station = Base.classes.station
 
 # Create our session (link) from Python to the DB
 
-Session = session(engine)
+Session = Session(engine)
 
 #################################################
 # Flask Setup
 #################################################
 
-app = Flask(__app__)
+app = Flask(__name__)
 
 #################################################
 # Flask Routes
 #################################################
 
-     #app.route("/")
+@app.route("/")
+def homepage():
+    return (f"Available routes: "
+            f"/api/v1.0/precipitation"
+            f"/api/v1.0/stations"
+            f"/api/v1.0/tobs"
+            f"/api/v1.0/<start> and /api/v1.0/<start>/<end>")
 
-#Start at the homepage.
-#List all the available routes.
+# Start at the homepage
+# List all the available routes
 
-     #app.route("/api/v1.0/precipitation")
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    
+    # Query from Precipitation Analysis
+    
+    Timerange = Session.query(Measurement.date, Measurement.prcp).all()
+    Timerange1 = [{"date": row.date, "prcp": row.prcp} for row in Timerange]
+    
+    return jsonify(Timerange1)
 
+    Session.close()
+    
 #Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a dictionary using date as #the key and prcp as the value.
 #Return the JSON representation of your dictionary.
 
-     #app.route("/api/v1.0/stations")
+@app.route("/api/v1.0/stations")
+def stations():
+    
+    # Query list of stations
+    Station_amount = Session.query(Station.station).all()
+    stations_list = [dict(row) for row in Station_amount]
+    
+    return jsonify(stations_list)
 
+    Session.close()
 #Return a JSON list of stations from the dataset.
 
-     #app.route("/api/v1.0/tobs")
+#@app.route("/api/v1.0/tobs")
+#def tabs():
+    
+    # Query dates and temperature
 
 #Query the dates and temperature observations of the most-active station for the previous year of data.
 #Return a JSON list of temperature observations for the previous year.
 
-     #app.route("/api/v1.0/<start> and /api/v1.0/<start>/<end>")
+#@app.route("/api/v1.0/<start> and /api/v1.0/<start>/<end>")
 
 #Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end #range.
 #For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
