@@ -84,6 +84,8 @@ def stations():
 #def tabs():
     
     # Query dates and temperature
+    Most_pop = session.query(Measurement.station, func.count(Measurement.station)).group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).all()
+Most_pop
 
 #Query the dates and temperature observations of the most-active station for the previous year of data.
 #Return a JSON list of temperature observations for the previous year.
