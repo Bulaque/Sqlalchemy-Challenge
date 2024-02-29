@@ -86,7 +86,7 @@ def stations():
 @app.route("/api/v1.0/tobs")
 def Most_Active():
     
-    # Query dates and temperature   ------------------------ COME BACK LATER -------------------
+    # Query dates and temperature  
     
     Active = Session.query(Measurement.date, Measurement.tobs).filter(Measurement.station == 'USC00519281').all()
     Active_list = [dict(row) for row in Active]
