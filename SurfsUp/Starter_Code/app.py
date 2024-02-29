@@ -1,3 +1,6 @@
+
+#       URL is html://127.0.0.1:5000
+
 # Import the dependencies.
 
 import sqlalchemy
@@ -5,7 +8,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import Session
 
-import datetime as dt
+import datetime as dt, date
 
 from flask import Flask, jsonify
 
@@ -80,17 +83,42 @@ def stations():
     Session.close()
 #Return a JSON list of stations from the dataset.
 
-#@app.route("/api/v1.0/tobs")
-#def tabs():
+@app.route("/api/v1.0/tobs")
+def Most_Active():
     
-    # Query dates and temperature
-    Most_pop = session.query(Measurement.station, func.count(Measurement.station)).group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).all()
-Most_pop
+    # Query dates and temperature   ------------------------ COME BACK LATER -------------------
+    
+    Active = Session.query(Measurement.date, Measurement.tobs).filter(Measurement.station == 'USC00519281').all()
+    Active_list = [dict(row) for row in Active]
 
+    return jsonify(Active_list)
+
+    Session.close()
 #Query the dates and temperature observations of the most-active station for the previous year of data.
 #Return a JSON list of temperature observations for the previous year.
 
-#@app.route("/api/v1.0/<start> and /api/v1.0/<start>/<end>")
+@app.route("/api/v1.0/<start>")
+def Temp_Range_Beginning():
+
+    # Query min, max, and avg temperature from a start point
+    
+    Start_date = date(2016 ,6 ,1)
+    Beginning = Session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date > Start_date).order_by(Measurement.date.desc()).all()
+    Beginning_list = [dict(row) for row in Beginning]
+
+    return jsonify(Beginning_list)
+
+@app.route("/api/v1.0/<start>/<end>")
+def Temp_Range():
+
+    # Query min, max, and avg temperature from a start to an end point
+    
+    Start_date = date(2016 ,6 ,1)
+    Last_date = date(2017, 10, 4)
+    Start_to_End = Session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date.between(Start_date, Last_date)).order_by(Measurement.date.desc()).all()
+    Start_to_end_list = [dict(row) for row in Start_to_End]
+
+    return jsonify(Start_to_end_list)
 
 #Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end #range.
 #For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
