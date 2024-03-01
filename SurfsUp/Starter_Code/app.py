@@ -8,7 +8,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import Session
 
-import datetime as dt, date
+import datetime as dt
 
 from flask import Flask, jsonify
 
@@ -66,7 +66,7 @@ def precipitation():
     
     return jsonify(Timerange1)
 
-    Session.close()
+
     
 #Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a dictionary using date as #the key and prcp as the value.
 #Return the JSON representation of your dictionary.
@@ -80,20 +80,19 @@ def stations():
     
     return jsonify(stations_list)
 
-    Session.close()
+
 #Return a JSON list of stations from the dataset.
 
 @app.route("/api/v1.0/tobs")
 def Most_Active():
     
     # Query dates and temperature  
-    
     Active = Session.query(Measurement.date, Measurement.tobs).filter(Measurement.station == 'USC00519281').all()
     Active_list = [dict(row) for row in Active]
 
     return jsonify(Active_list)
 
-    Session.close()
+    
 #Query the dates and temperature observations of the most-active station for the previous year of data.
 #Return a JSON list of temperature observations for the previous year.
 
@@ -101,9 +100,8 @@ def Most_Active():
 def Temp_Range_Beginning():
 
     # Query min, max, and avg temperature from a start point
-    
-    Start_date = date(2016 ,6 ,1)
-    Beginning = Session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date > Start_date).order_by(Measurement.date.desc()).all()
+    First_date = '2016-06-01'
+    Beginning = Session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date > First_date).order_by(Measurement.date.desc()).all()
     Beginning_list = [dict(row) for row in Beginning]
 
     return jsonify(Beginning_list)
@@ -112,10 +110,9 @@ def Temp_Range_Beginning():
 def Temp_Range():
 
     # Query min, max, and avg temperature from a start to an end point
-    
-    Start_date = date(2016 ,6 ,1)
-    Last_date = date(2017, 10, 4)
-    Start_to_End = Session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date.between(Start_date, Last_date)).order_by(Measurement.date.desc()).all()
+    First_date = '2016-06-01'
+    Last_date = '2017-10-04'
+    Start_to_End = Session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date.between(First_date, Last_date)).order_by(Measurement.date.desc()).all()
     Start_to_end_list = [dict(row) for row in Start_to_End]
 
     return jsonify(Start_to_end_list)
